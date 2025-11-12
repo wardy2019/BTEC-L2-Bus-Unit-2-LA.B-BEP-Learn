@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Break-even Lab</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <header>
+      <div class="brand" aria-label="App identity">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Break-even Lab</h1>
+      </div>
+      <div class="toggles" aria-label="Utility controls">
+        <button class="btn secondary" id="resetBtn">Reset</button>
+      </div>
+    </header>
+
+    <main class="grid two" aria-live="polite">
+      <section class="panel" aria-labelledby="inputs-title">
+        <h2 id="inputs-title">Build the graph</h2>
+        <p class="note">Enter simple numbers. The app draws total cost, total revenue, and fixed cost. You can mark the break-even point and explore what-if changes.</p>
+
+        <label for="price">Selling price per unit (£)</label>
+        <input id="price" type="number" min="0" step="0.01" value="10" />
+
+        <label for="vc">Variable cost per unit (£)</label>
+        <input id="vc" type="number" min="0" step="0.01" value="4" />
+
+        <label for="fc">Fixed costs (£)</label>
+        <input id="fc" type="number" min="0" step="1" value="1200" />
+
+        <label for="maxu">Max units on chart</label>
+        <input id="maxu" type="number" min="10" step="10" value="400" />
+
+        <label for="roundingMode">How to show units</label>
+        <select id="roundingMode">
+          <option value="int">Whole units</option>
+          <option value="dp2">2 dp</option>
+        </select>
+
+        <div id="validation" class="note" role="status" style="margin-top:8px;"></div>
+
+        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap: wrap;">
+          <button class="btn" id="drawBtn">Draw graph</button>
+          <button class="btn ok" id="markBepBtn">Mark BEP</button>
+          <button class="btn ghost" id="toggleRegionsBtn" aria-pressed="false">Toggle profit/loss regions</button>
+        </div>
+
+        <details style="margin-top:12px;">
+          <summary>Quick tips</summary>
+          <p>Fixed cost moves the total cost line up or down. Variable cost changes the slope of total cost. Revenue line slope comes from price.</p>
+          <p>Break-even happens where total revenue and total cost meet.</p>
+        </details>
+
+        <hr style="margin:16px 0; border:0; border-top:2px solid #e2e8f0;" />
+
+        <h3>Check your understanding</h3>
+        <div id="checks" class="grid" style="gap:12px;">
+          <button class="btn secondary" id="qFixedBtn">Select the fixed cost line</button>
+          <button class="btn secondary" id="qProfitBtn">Shade the profit region</button>
+          <button class="btn secondary" id="qLossBtn">Shade the loss region</button>
+          <div id="checkMsg" class="note" role="status"></div>
+        </div>
+
+        <hr style="margin:16px 0; border:0; border-top:2px solid #e2e8f0;" />
+
+        <h3>Calculate</h3>
+        <label for="plan">Planned sales (units)</label>
+        <input id="plan" type="number" min="0" step="1" value="250" />
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap: wrap;">
+          <button class="btn" id="calcBepBtn">BEP from numbers</button>
+          <button class="btn" id="calcMosBtn">Margin of safety</button>
+          <button class="btn ghost" id="showMosBtn">Show margin of safety on chart</button>
+        </div>
+        <div id="calcOut" class="note" role="status" style="margin-top:8px;"></div>
+
+        <details style="margin-top:12px;">
+          <summary>Formula recall (type your version)</summary>
+          <p class="note">Write the break-even formula using words or symbols. Example layout: fixed costs / (price − variable cost).</p>
+          <label for="formulaBox">Your formula</label>
+          <input id="formulaBox" type="text" placeholder="Type your formula here" />
+          <button class="btn" id="checkFormulaBtn" style="margin-top:8px;">Check formula</button>
+          <div id="formulaOut" class="note" role="status" style="margin-top:8px;"></div>
+        </details>
+
+        <details style="margin-top:12px;">
+          <summary>Margin of safety explained</summary>
+          <p class="note"><strong>Margin of safety</strong> tells you how far sales can fall before the business makes a loss. It is the gap between planned sales and the break-even point.</p>
+          <ul>
+            <li>Formula: planned sales − BEP (in units).</li>
+            <li>On the chart: the purple bracket between BEP and your planned sales.</li>
+            <li>If it is negative, the business is still in the <em>loss</em> region.</li>
+          </ul>
+        </details>
+      </section>
+
+      <section class="panel">
+        <h2 id="graph-title">Break-even chart</h2>
+        <div class="graph-wrap" aria-labelledby="graph-title">
+          <svg id="chart" role="img" aria-label="Break-even chart showing revenue, total cost and fixed cost lines" tabindex="0"></svg>
+          <div class="key" aria-label="Chart key" style="margin-top:8px;">
+            <span><i class="swatch rev" aria-hidden="true"></i> Total revenue</span>
+            <span><i class="swatch tot" aria-hidden="true"></i> Total cost</span>
+            <span><i class="swatch fix" aria-hidden="true"></i> Fixed cost</span>
+            <span class="tag" id="bepTag">BEP: —</span>
+            <span class="tag" id="mosTag">MOS: —</span>
+          </div>
+        </div>
+
+        <details style="margin-top:12px;">
+          <summary>Learn the lines</summary>
+          <p class="note">Focus an item to highlight it on the chart.</p>
+          <div class="key">
+            <button class="btn ghost" data-highlight="rev">Highlight revenue</button>
+            <button class="btn ghost" data-highlight="tot">Highlight total cost</button>
+            <button class="btn ghost" data-highlight="fix">Highlight fixed cost</button>
+          </div>
+        </details>
+
+        <h3 style="margin-top:16px;">What-if lab</h3>
+        <div class="panel" style="background:#fff;">
+          <label for="priceS">Price</label>
+          <input id="priceS" type="range" min="1" max="50" value="10" />
+          <label for="vcS">Variable cost</label>
+          <input id="vcS" type="range" min="0" max="30" value="4" />
+          <label for="fcS">Fixed cost</label>
+          <input id="fcS" type="range" min="0" max="5000" value="1200" />
+          <p class="note" id="whatIfNote">Predict first. Then move a slider and see how BEP changes.</p>
+        </div>
+
+        <details style="margin-top:12px;">
+          <summary>Common misconceptions</summary>
+          <ul>
+            <li>Fixed cost changes the slope. <strong>Correction:</strong> it shifts total cost up or down.</li>
+            <li>Profit starts at zero units. <strong>Correction:</strong> loss continues until BEP is reached.</li>
+            <li>All units are sold. <strong>Reality:</strong> unsold stock means the chart is a guide only.</li>
+          </ul>
+        </details>
+
+
+
+        <details style="margin-top:12px;">
+          <summary>Reading from the graph</summary>
+          <p>Use the axes to read units on the bottom and money on the side. The intersection of total cost and total revenue is the break-even point.</p>
+        </details>
+
+        <h3 style="margin-top:16px;">Advantages and disadvantages</h3>
+        <p class="note">Sort the cards. Use the keyboard: Tab to focus a card then press <span class="kbd">A</span> for advantages or <span class="kbd">D</span> for disadvantages.</p>
+        <div class="sort-wrap" id="sorter">
+          <div class="bin" id="bin-adv" aria-label="Advantages bin" tabindex="0"><strong>Advantages</strong></div>
+          <div class="bin" id="bin-dis" aria-label="Disadvantages bin" tabindex="0"><strong>Disadvantages</strong></div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap: wrap;">
+          <button class="btn" id="checkSortBtn">Check</button>
+          <button class="btn ghost" id="revealSortBtn">Reveal</button>
+        </div>
+        <div id="sortMsg" class="note" role="status" style="margin-top:8px;"></div>
+
+        <details style="margin-top:16px;">
+          <summary>Developer tests</summary>
+          <div id="testOut" class="note"></div>
+        </details>
+      </section>
+    </main>
+
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
